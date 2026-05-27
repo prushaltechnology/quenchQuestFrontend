@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Layout, Typography, Button, Space, Row, Col, Divider } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { HeartFilled, HeartOutlined, TeamOutlined, BookOutlined, SafetyOutlined, RiseOutlined, ToolOutlined, BulbOutlined } from '@ant-design/icons';
 import { motion } from "framer-motion";
 import antdTheme from '../../theme/antdTheme';
@@ -38,6 +38,7 @@ const newsData = [
 
 
 const Home = () => {
+    const navigate = useNavigate();
     const { colorPrimary, colorTextSecondary } = antdTheme.token;
     const location = useLocation();
 
@@ -102,25 +103,45 @@ const Home = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4, duration: 0.6 }}
                             >
-                                <Space 
-                                size="large" 
-                                onClick={() => {
-                                                const section = document.getElementById('contact');
-                                                section?.scrollIntoView({ behavior: 'smooth' });
-                                            }}
-                                style={{ marginTop: 20 }}>
-                                    <Button type="primary" size="large">
-                                        Donate Now
-                                    </Button>
-                                    <Button 
+                                <Space
                                     size="large"
                                     onClick={() => {
-                                                const section = document.getElementById('contact');
-                                                section?.scrollIntoView({ behavior: 'smooth' });
+                                        const section = document.getElementById('contact');
+                                        section?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    style={{ marginTop: 20 }}>
+                                    <Space size="large" style={{ marginTop: 20 }}>
+
+                                        <Button
+                                            type="primary"
+                                            size="large"
+                                            onClick={() => {
+                                                const message = `Hello Quench Quest Social Foundation,
+
+I visited your website and I am interested in donating.
+
+Source: Quench Quest Website
+Action: Donate Now 
+
+Please share the donation details.`;
+
+                                                window.open(
+                                                    `https://wa.me/919860026373?text=${encodeURIComponent(message)}`,
+                                                    "_blank"
+                                                );
                                             }}
-                                    >
-                                        Volunteer With Us
-                                    </Button>
+                                        >
+                                            Donate Now
+                                        </Button>
+
+                                        <Button
+                                            size="large"
+                                            onClick={() => navigate('/get-involved')}
+                                        >
+                                            Volunteer With Us
+                                        </Button>
+
+                                    </Space>
                                 </Space>
                             </motion.div>
                         </motion.div>
@@ -442,7 +463,7 @@ const Home = () => {
                     </Col>
                 </Row>
 
-                <Row
+                {/* <Row
                     gutter={[32, 32]}
                     justify="center"
                     style={{ maxWidth: 1200, margin: '0 auto' }}
@@ -471,7 +492,7 @@ const Home = () => {
                                 transition={{ delay: index * 0.3, duration: 0.8, ease: 'easeOut' }}
                                 viewport={{ once: true }}
                             >
-                                {/* Animated Count */}
+                               
                                 <Title
                                     level={1}
                                     style={{
@@ -490,7 +511,7 @@ const Home = () => {
                                     {item.suffix}
                                 </Title>
 
-                                {/* Label */}
+                           
                                 <Paragraph
                                     style={{
                                         fontSize: 18,
@@ -503,7 +524,51 @@ const Home = () => {
                             </motion.div>
                         </Col>
                     ))}
+                </Row> */}
+
+                <Row justify="center">
+                    <Col xs={24} md={12}>
+                        <motion.div
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                            viewport={{ once: true }}
+                        >
+                            <div
+                                style={{
+                                    background: '#ffffff',
+                                    padding: '50px 30px',
+                                    borderRadius: 12,
+                                    textAlign: 'center',
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                                }}
+                            >
+                                <Title
+                                    level={2}
+                                    style={{
+                                        color: antdTheme.token.colorPrimary,
+
+                                    }}
+                                >
+                                    Upcoming
+                                </Title>
+
+                                <Paragraph
+                                    style={{
+                                        fontSize: 18,
+                                        color: antdTheme.token.colorTextSecondary,
+                                        marginBottom: 0,
+                                    }}
+                                >
+                                    New campaigns, programs, and community initiatives are coming soon.
+                                    Stay connected with us for future updates.
+                                </Paragraph>
+                            </div>
+                        </motion.div>
+                    </Col>
                 </Row>
+
+
             </Content>
 
 
@@ -559,10 +624,7 @@ const Home = () => {
                             >
                                 <Button
                                     size="large"
-                                    onClick={() => {
-                                                const section = document.getElementById('contact');
-                                                section?.scrollIntoView({ behavior: 'smooth' });
-                                            }}
+                                    onClick={() => navigate('/get-involved')}
                                     style={{
                                         background: '#ffffff',
                                         color: antdTheme.token.colorPrimary,
@@ -624,7 +686,7 @@ const Home = () => {
                     </Col>
                 </Row>
 
-                <Row
+                {/* <Row
                     gutter={[32, 32]}
                     justify="center"
                     style={{ maxWidth: 1200, margin: '0 auto' }}
@@ -649,7 +711,7 @@ const Home = () => {
                                         flexDirection: 'column',
                                     }}
                                 >
-                                    {/* Image */}
+                                     Image 
                                     <img
                                         src={news.image}
                                         alt={news.title}
@@ -660,7 +722,7 @@ const Home = () => {
                                         }}
                                     />
 
-                                    {/* Content */}
+                                     Content 
                                     <div style={{ padding: 24, flexGrow: 1 }}>
                                         <Paragraph
                                             style={{
@@ -681,7 +743,7 @@ const Home = () => {
                                         </Paragraph>
                                     </div>
 
-                                    {/* Button */}
+                                     Button 
                                     <div style={{ padding: '0 24px 24px' }}>
                                         <Button
                                             block
@@ -702,7 +764,53 @@ const Home = () => {
                             </motion.div>
                         </Col>
                     ))}
+                </Row> */}
+
+                <Row justify="center">
+                    <Col xs={24} md={12}>
+                        <motion.div
+                            initial={{ opacity: 0, y: 50 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.7, ease: 'easeOut' }}
+                            viewport={{ once: true }}
+                        >
+                            <div
+                                style={{
+                                    background: '#ffffff',
+                                    borderRadius: antdTheme.token.borderRadius,
+                                    padding: '60px 30px',
+                                    textAlign: 'center',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                                }}
+                            >
+                                <Title
+                                    level={2}
+                                    style={{
+                                        color: colorPrimary,
+                                        marginBottom: 20,
+                                    }}
+                                >
+                                    UPCOMING
+                                </Title>
+
+                                <Paragraph
+                                    style={{
+                                        fontSize: 18,
+                                        color: antdTheme.token.colorTextSecondary,
+                                        lineHeight: 1.8,
+                                        marginBottom: 0,
+                                    }}
+                                >
+                                    Exciting new campaigns, community programs,
+                                    and social initiatives are coming soon.
+                                    Stay connected with us for future updates.
+                                </Paragraph>
+                            </div>
+                        </motion.div>
+                    </Col>
                 </Row>
+
+
             </Content>
 
 
