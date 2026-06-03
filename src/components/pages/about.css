@@ -1,0 +1,51 @@
+/* Upcoming Section */
+
+.upcoming-section {
+  padding: 100px 20px;
+  background: #ffffff;
+
+  display: flex;
+  justify-content: center;
+}
+
+.upcoming-card {
+  max-width: 800px;
+  background: #ffffff;
+
+  padding: 40px;
+
+  border-radius: 12px;
+
+  text-align: center;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.upcoming-section h2 {
+  font-size: 32px;
+  font-weight: 700;
+
+  color: #2f8f83;
+
+  margin-bottom: 20px;
+}
+
+.upcoming-section p{
+  font-size: 16px;
+
+  line-height: 1.8;
+
+  color: #5f6368;
+}
+
+.partner-section{
+    padding: 05px;
+    display: flex;
+    justify-content: center;
+
+}
+.partner-section h2{
+    color: #2f8f83;
+    font-size: 32px;
+    font-weight: 700;
+}

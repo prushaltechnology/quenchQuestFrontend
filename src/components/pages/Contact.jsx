@@ -21,8 +21,12 @@ import {
   SafetyOutlined,
 } from "@ant-design/icons";
 import { motion } from "framer-motion"; // <-- Import Framer Motion
-
 import antdTheme from "../../theme/antdTheme";
+
+import { useEffect, useState } from "react";
+import { message } from "antd";
+import { getUser } from "../../utils/auth";
+import { sendContactMessage } from "../../api/authApi";
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -33,9 +37,61 @@ const { Panel } = Collapse;
 const Contact = () => {
   const { colorPrimary, colorTextSecondary } = antdTheme.token;
 
-  const onFinish = (values) => {
-    console.log("Contact Form Data:", values);
-  };
+  const [form] = Form.useForm();
+const [loading, setLoading] = useState(false);
+
+const user = getUser();
+const isLoggedIn = !!user;
+
+useEffect(() => {
+  if (user) {
+    form.setFieldsValue({
+      name: user.name,
+      email: user.email,
+      contact: user.phone,
+      address: user.location,
+      message: "",
+    });
+  }
+}, [user, form]);
+
+const onFinish = async (values) => {
+  try {
+    setLoading(true);
+
+    const payload = {
+      name: values.name,
+      email: values.email,
+      contact: values.contact,
+      address: values.address,
+      message: values.message,
+    };
+
+    const response = await sendContactMessage(payload);
+
+    message.success(
+      response?.data?.message || "Message sent successfully"
+    );
+
+    form.setFieldsValue({
+      name: user?.name,
+      email: user?.email,
+      contact: user?.phone,
+      address: user?.location,
+      message: "",
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    message.error(
+      error?.response?.data?.message ||
+      "Failed to send message"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Motion variants for sections
   const fadeInUp = {
@@ -47,7 +103,7 @@ const Contact = () => {
     hidden: {},
     visible: { transition: { staggerChildren: 0.2 } },
   };
-   // FAQ data
+  // FAQ data
   const faqs = [
     {
       question: "How can I donate to Quench Quest Social Foundation?",
@@ -318,61 +374,78 @@ const Contact = () => {
               {/* Contact Form */}
               <Col xs={24} md={10}>
                 <motion.div variants={fadeInUp}>
-                  <Card
-                    style={{
-                      borderRadius: antdTheme.token.borderRadius + 4,
-                      boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-                      padding: "10px",
-                    }}
-                  >
-                    <Title
-                      level={4}
-                      style={{
-                        marginBottom: 24,
-                        color: antdTheme.token.colorText,
-                      }}
-                    >
-                      Send a Message
-                    </Title>
+                 <Card
+  style={{
+    borderRadius: antdTheme.token.borderRadius + 4,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+    padding: "10px",
+  }}
+>
+  <Title
+    level={4}
+    style={{
+      marginBottom: 24,
+      color: antdTheme.token.colorText,
+    }}
+  >
+    Send a Message
+  </Title>
 
-                    <Form layout="vertical" onFinish={onFinish}>
-                      <Form.Item
-                        label="Name"
-                        name="name"
-                        rules={[{ required: true }]}
-                      >
-                        <Input />
-                      </Form.Item>
+  <Form
+    form={form}
+    layout="vertical"
+    onFinish={onFinish}
+  >
+    <Form.Item
+      name="name"
+      rules={[{ required: true, message: "Enter your name" }]}
+    >
+      <Input placeholder="Your Name" disabled={isLoggedIn} />
+    </Form.Item>
 
-                      <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, type: "email" }]}
-                      >
-                        <Input />
-                      </Form.Item>
+    <Form.Item
+      name="email"
+      rules={[
+        { required: true, message: "Enter email" },
+        { type: "email", message: "Enter valid email" },
+      ]}
+    >
+      <Input placeholder="Your Email" disabled={isLoggedIn} />
+    </Form.Item>
 
-                      <Form.Item label="Subject" name="subject">
-                        <Input />
-                      </Form.Item>
+    <Form.Item name="contact">
+      <Input placeholder="Phone Number" disabled={isLoggedIn} />
+    </Form.Item>
 
-                      {/* <Form.Item label="Phone" name="phone">
-                        <Input />
-                      </Form.Item> */}
+    <Form.Item
+      name="address"
+      rules={[{ required: true, message: "Enter your address" }]}
+    >
+      <Input placeholder="Your Address" disabled={isLoggedIn} />
+    </Form.Item>
 
-                      <Form.Item
-                        label="Message"
-                        name="message"
-                        rules={[{ required: true }]}
-                      >
-                        <TextArea rows={4} />
-                      </Form.Item>
+    <Form.Item
+      name="message"
+      rules={[{ required: true, message: "Enter message" }]}
+    >
+      <TextArea
+        rows={4}
+        placeholder="Your Message"
+      />
+    </Form.Item>
 
-                      <Button type="primary" block>
-                        Submit
-                      </Button>
-                    </Form>
-                  </Card>
+    <Form.Item>
+      <Button
+        type="primary"
+        htmlType="submit"
+        loading={loading}
+        block
+      >
+        Send Message
+      </Button>
+    </Form.Item>
+  </Form>
+</Card>
                 </motion.div>
               </Col>
             </Row>
@@ -402,7 +475,7 @@ const Contact = () => {
           </motion.div>
 
 
-{/* FAQ SECTION */}
+          {/* FAQ SECTION */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -446,7 +519,7 @@ const Contact = () => {
               </Col>
             </Row>
           </motion.div>
-          
+
         </Content>
       </Layout>
     </ConfigProvider>

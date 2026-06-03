@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
     "antd": "^6.1.2",
+    "axios": "^1.16.1",
     "framer-motion": "^12.23.26",
     "react": "^19.2.0",
     "react-countup": "^6.5.3",

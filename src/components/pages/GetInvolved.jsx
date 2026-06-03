@@ -13,6 +13,7 @@ import {
   Space,
   Divider,
   Select,
+  message,
 } from "antd";
 import {
   LockOutlined,
@@ -21,24 +22,34 @@ import {
   GoogleOutlined,
   HeartFilled,
 } from "@ant-design/icons";
+import { registerUser } from "../../api/authApi";
 import antdTheme from "../../theme/antdTheme";
 
 import eduImg from "../../assets/story6.png";
 import skillImg from "../../assets/story5.png";
 import childImg from "../../assets/story7.png";
-
+import { verifyOtp } from "../../api/authApi";
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
+
+
 const GetInvolved = () => {
   const { colorPrimary, colorTextSecondary, borderRadius } = antdTheme.token;
+
+   const [showOtp, setShowOtp] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [otpForm] = Form.useForm();
 
   // Donation state
   const [amount, setAmount] = useState(100);
   const [frequency, setFrequency] = useState("One-time");
   const [paymentMode, setPaymentMode] = useState("Card");
+
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   // Responsive helper (mobile breakpoint at 576px)
   const [isMobile, setIsMobile] = useState(
@@ -151,15 +162,67 @@ const GetInvolved = () => {
     });
   };
 
-  const handleVolunteerSubmit = (values) => {
-    console.log("Volunteer Application:", values);
-  };
+  const handleVerifyOtp = async (values) => {
+  try {
+    const payload = {
+      email: userEmail,
+      otp: values.otp,
+    };
+
+    const response = await verifyOtp(payload);
+
+    message.success(
+      response?.data?.message ||
+      "OTP Verified Successfully"
+    );
+
+    form.resetFields();
+    otpForm.resetFields();
+
+    setShowOtp(false);
+  } catch (error) {
+    message.error(
+      error?.response?.data?.message ||
+      "OTP Verification Failed"
+    );
+  }
+};
+
+const handleVolunteerSubmit = async (values) => {
+  try {
+    setLoading(true);
+
+    const payload = {
+      ...values,
+      availability: Array.isArray(values.availability)
+        ? values.availability.join(",")
+        : values.availability,
+    };
+
+    console.log("FINAL PAYLOAD:", payload);
+
+    const response = await registerUser(payload);
+
+    setUserEmail(values.email);
+    setShowOtp(true);
+
+    message.success(response?.data?.message || "OTP Sent Successfully");
+  } catch (error) {
+    console.log("ERROR:", error?.response?.data);
+
+    message.error(
+      error?.response?.data?.message || "Registration Failed"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Layout>
       <Content style={{ padding: "0px 20px", backgroundColor: "#ffffff" }}>
         {/* ================= Donation Section ================= */}
-        <Row data-section="donation" justify="center" style={getSectionStyle("donation", { marginBottom: 30, marginLeft: -20, marginRight: -20 })}>
+        {/* <Row data-section="donation" justify="center" style={getSectionStyle("donation", { marginBottom: 30, marginLeft: -20, marginRight: -20 })}>
           <Col xs={24} md={24}>
             <Card
               style={{
@@ -167,8 +230,8 @@ const GetInvolved = () => {
                 padding: isMobile ? "24px 0" : "40px 0",
                 textAlign: "center", backgroundColor: "#f5f8fc",
               }}
-            >
-              <Title level={2}>Make a Donation</Title>
+            > */}
+              {/* <Title level={2}>Make a Donation</Title>
               <Divider plain>
                 <span
                   style={{
@@ -196,6 +259,8 @@ const GetInvolved = () => {
                   />
                 </span>
               </Divider>
+             
+             
               <Paragraph
                 style={{
                   color: colorTextSecondary,
@@ -203,7 +268,9 @@ const GetInvolved = () => {
                   marginBottom: 30,
                 }} >
                 Your generous contributions enable us to continue our vital work, transforming lives and building stronger communities. <br></br>Every amount makes a significant impact.
-              </Paragraph> {/* Donation Amount */}
+              </Paragraph>
+             
+             
               <Space size="middle"
                 style={{
                   marginBottom: 10
@@ -216,14 +283,15 @@ const GetInvolved = () => {
                   <Input placeholder="Other amount" style={{ width: isMobile ? "100%" : 140 , padding: "8px"}}
                    type="number" onChange={(e) => setAmount(Number(e.target.value))} /> 
                    </Space> <br /> <br /> 
-                   {/* Frequency */}
+                 
                     <Space size="middle" style={{ marginBottom: 20 }} direction={isMobile ? "vertical" : "horizontal"}>
                        <Button type={frequency === "One-time" ? "primary" : "default"} 
                        onClick={() => setFrequency("One-time")} block={isMobile} > One-time </Button> 
                        <Button type={frequency === "Monthly" ? "primary" : "default"} 
                        onClick={() => setFrequency("Monthly")} block={isMobile} > Monthly </Button>
                         </Space> <Divider /> 
-                        {/* Payment Method Dropdown */}
+                  
+
                          <Title level={5}>Select Payment Method</Title> 
                          <Select value={paymentMode} 
                          onChange={(value) => setPaymentMode(value)}
@@ -232,26 +300,79 @@ const GetInvolved = () => {
                           <Option value="Card"> 
                             <CreditCardOutlined /> 
                             Credit / Debit Card </Option>
-                             <Option value="UPI"> <GoogleOutlined /> UPI (Google Pay, PhonePe, Paytm) </Option> <Option value="NetBanking"> <BankOutlined /> Net Banking </Option> </Select> {/* Secure Payment Note */} <Paragraph style={{ marginTop: 20, color: colorTextSecondary, fontSize: 14, display: "flex", justifyContent: "center", alignItems: "center", gap: 6, }} > <LockOutlined style={{ color: colorPrimary }} /> Secure payment via trusted payment gateways </Paragraph> {/* Donate Button */} <Button type="primary" size="large" style={{ borderRadius: 8, marginTop: 10, width: isMobile ? "100%" : undefined }} block={isMobile} onClick={handleDonate} > Donate ₹{amount} </Button> </Card> </Col> </Row>
+                             <Option value="UPI"> <GoogleOutlined /> UPI (Google Pay, PhonePe, Paytm) </Option> <Option value="NetBanking"> <BankOutlined /> Net Banking </Option> </Select> {/* Secure Payment Note */}
+              {/* <Paragraph style={{ marginTop: 20, color: colorTextSecondary, fontSize: 14, display: "flex", justifyContent: "center", alignItems: "center", gap: 6, }} > 
+                                <LockOutlined style={{ color: colorPrimary }} /> 
+                                Secure payment via trusted payment gateways 
+                                </Paragraph>
+                             
+                               <Button type="primary" size="large" style={{ borderRadius: 8, marginTop: 10, width: isMobile ? "100%" : undefined }} block={isMobile} onClick={handleDonate} > Donate ₹{amount} </Button> */}
+            {/* </Card>
+          </Col>
+        </Row> */}
 
         {/* ================= Volunteer Section ================= */}
-        <Row data-section="volunteer" justify="center" gutter={[16, 16]} style={getSectionStyle("volunteer", { marginBottom: 60 })}>
-          <Col xs={24} sm={22} md={20} lg={16}>
-            <Card
-              style={{
-                borderRadius: borderRadius + 4,
-                padding: "30px 20px",
-                boxShadow: "0 8px 24px rgba(16,24,40,0.08)",
-                border: "none",
-              }}
-            >
-              <Title level={2}>Become a Volunteer</Title>
-              <Paragraph style={{ color: colorTextSecondary, fontSize: 16, marginBottom: 30 }}>
-                Lend your time and talents to make a direct impact on the lives of those we serve.
-                Join our dedicated team of volunteers!
-              </Paragraph>
+        {/* ================= Volunteer Section ================= */}
+<Row
+  data-section="volunteer"
+  justify="center"
+  gutter={[16, 16]}
+  style={getSectionStyle("volunteer", { marginBottom: 60 })}
+>
+  <Col xs={24} sm={22} md={20} lg={16}>
+    <Card
+      style={{
+        borderRadius: borderRadius + 4,
+        padding: "30px 20px",
+        boxShadow: "0 8px 24px rgba(16,24,40,0.08)",
+        border: "none",
+      
+        textAlign: "center"
+      }}
+    >
+      <Title level={2}>Become a Volunteer</Title>
 
-              <Form layout="vertical" onFinish={handleVolunteerSubmit}>
+      <Paragraph style={{ color: colorTextSecondary, fontSize: 16, marginBottom: 30 }}>
+        Lend your time and talents to make a direct impact.
+      </Paragraph>
+
+      <Row justify="center">
+        <Col xs={24} sm={22} md={18} lg={14}>
+          <Card style={{ borderRadius: 16, boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}>
+            
+            <div style={{ textAlign: "center", marginBottom: 20 }}>
+              <Title level={3}>
+                {showOtp ? "Verify OTP" : "Volunteer Registration"}
+              </Title>
+              <Paragraph>
+                {showOtp
+                  ? `OTP sent to ${userEmail}`
+                  : "Join our mission and make a difference"}
+              </Paragraph>
+            </div>
+
+            {/* ================= OTP FORM ================= */}
+            {showOtp ? (
+              <Form form={otpForm} layout="vertical" onFinish={handleVerifyOtp}>
+                <Form.Item
+                  label="OTP"
+                  name="otp"
+                  rules={[{ required: true, message: "Enter OTP" }]}
+                >
+                  <Input size="large" />
+                </Form.Item>
+
+                <Button type="primary" htmlType="submit" block>
+                  Verify OTP
+                </Button>
+              </Form>
+            ) : (
+              /* ================= REGISTRATION FORM ================= */
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleVolunteerSubmit}
+              >
                 <Row gutter={[16, 16]}>
                   <Col xs={24} md={12}>
                     <Form.Item
@@ -259,69 +380,89 @@ const GetInvolved = () => {
                       name="name"
                       rules={[{ required: true }]}
                     >
-                      <Input />
+                      <Input size="large" />
                     </Form.Item>
                   </Col>
+
                   <Col xs={24} md={12}>
                     <Form.Item
                       label="Email"
                       name="email"
-                      rules={[{ required: true, type: "email" }]}
+                      rules={[
+                        { required: true },
+                        { type: "email" }
+                      ]}
                     >
-                      <Input />
+                      <Input size="large" />
                     </Form.Item>
                   </Col>
-                  <Col xs={24} md={12}>
-                    <Form.Item label="Phone Number" name="phone">
-                      <Input />
-                    </Form.Item>
-                  </Col>
+
                   <Col xs={24} md={12}>
                     <Form.Item
-                      label="Preferred Location (Optional)"
-                      name="location"
+                      label="Phone"
+                      name="phone"
+                      rules={[{ required: true }]}
                     >
-                      <Input />
+                      <Input size="large" />
+                    </Form.Item>
+                  </Col>
+
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label="Location"
+                      name="location"
+                      rules={[{ required: true }]}
+                    >
+                      <Input size="large" />
                     </Form.Item>
                   </Col>
                 </Row>
 
                 <Form.Item
-                  label="Skills & Experience"
+                  label="Skills"
                   name="skills"
                   rules={[{ required: true }]}
                 >
-                  <TextArea
-                    rows={4}
-                    placeholder="Tell us about your skills, interests, and previous volunteer experience..."
-                  />
+                  <Input.TextArea rows={3} />
                 </Form.Item>
 
-                <Form.Item label="Availability" name="availability">
-                  <Checkbox.Group>
-                    <Row gutter={[16, 16]}>
-                      <Col>
-                        <Checkbox value="Weekdays">Weekdays</Checkbox>
-                      </Col>
-                      <Col>
-                        <Checkbox value="Weekends">Weekends</Checkbox>
-                      </Col>
-                      <Col>
-                        <Checkbox value="Evenings">Evenings</Checkbox>
-                      </Col>
-                    </Row>
-                  </Checkbox.Group>
+                <Form.Item
+                  label="Availability"
+                  name="availability"
+                  rules={[{ required: true }]}
+                >
+                  <Select mode="multiple" size="large">
+                    <Select.Option value="Weekdays">Weekdays</Select.Option>
+                    <Select.Option value="Weekends">Weekends</Select.Option>
+                    <Select.Option value="Evenings">Evenings</Select.Option>
+                  </Select>
                 </Form.Item>
 
-                <Form.Item>
-                  <Button type="primary" size="large" htmlType="submit" style={{ borderRadius: 8 }}>
-                    Submit Application
-                  </Button>
+                <Form.Item
+                  label="Password"
+                  name="password"
+                  rules={[{ required: true }]}
+                >
+                  <Input.Password size="large" />
                 </Form.Item>
+
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  block
+                  size="large"
+                >
+                  Register as Volunteer
+                </Button>
               </Form>
-            </Card>
-          </Col>
-        </Row>
+            )}
+          </Card>
+        </Col>
+      </Row>
+    </Card>
+  </Col>
+</Row>
 
         {/* ================= Corporate Partnerships Section ================= */}
         <Row data-section="corporate" justify="center" gutter={[16, 16]} style={getSectionStyle("corporate", { marginBottom: 60, marginLeft: -20, marginRight: -20 })}>
@@ -385,14 +526,28 @@ const GetInvolved = () => {
                   </Col>
                 </Row>
 
-                <Button type="primary" size="large" style={{ marginTop: 20 }}>Learn More & Connect</Button>
+                <Button onClick={() => {
+                  const message = `Hello Quench Quest Social Foundation,
+
+I visited your website and I want to learn more & connect .
+
+Source: Quench Quest Website
+Action: Learn More & Connect 
+
+Please share the donation details.`;
+
+                  window.open(
+                    `https://wa.me/9762203269?text=${encodeURIComponent(message)}`,
+                    "_blank"
+                  );
+                }} type="primary" size="large" style={{ marginTop: 20 }}>Learn More & Connect</Button>
               </div>
             </Card>
           </Col>
         </Row>
 
         {/* ================= Upcoming Fundraising Events ================= */}
-        <Row data-section="upcoming" justify="center" gutter={[32, 32]} style={getSectionStyle("upcoming", { marginBottom: 80 })}>
+        {/* <Row data-section="upcoming" justify="center" gutter={[32, 32]} style={getSectionStyle("upcoming", { marginBottom: 80 })}>
           <Col xs={24} sm={22} md={20}>
             <Title level={2} style={{ textAlign: "center" }}>Upcoming Fundraising Events</Title>
 
@@ -486,7 +641,7 @@ const GetInvolved = () => {
               })}
             </Row>
           </Col>
-        </Row>
+        </Row> */}
 
       </Content>
     </Layout>

@@ -22,6 +22,12 @@ import award1 from "../../assets/news1.jpg";
 import award2 from "../../assets/news2.jpg";
 import award3 from "../../assets/news3.jpg";
 import heroBg from "../../assets/hero-img1.png";
+import upcomingImg from "../../assets/upcoming.jpg";
+
+import kushalsirimage from "../../assets/kushal-Sharma.webp"
+import shivsirimage from "../../assets/shivsingh-patel.jpg"
+import Ritvizsirimage from "../../assets/ritviz-singh.webp"
+import CommonCard from '../CommonCard';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -51,18 +57,19 @@ const visionMission = [
 
 const teamMembers = [
   {
-    name: "Dr. Anya Sharma",
-    role: "Founder & CEO",
-    desc:
-      "A visionary leader with over two decades of experience in community development and social welfare initiatives.",
-    img: "https://randomuser.me/api/portraits/women/44.jpg",
+    name: "Mr. Kushal Sharma",
+    
+    img: kushalsirimage,
   },
   {
-    name: "Mr. Raj Patel",
-    role: "Chief Programs Officer",
-    desc:
-      "Specializes in designing and implementing scalable welfare programs ensuring maximum impact in underserved communities.",
-    img: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Mr. Shivsingh Patel",
+    
+    img: shivsirimage,
+  },
+   {
+    name: "Mr. Ritviz Singh",
+   
+    img: Ritvizsirimage
   },
   // {
   //   name: "Ms. Priya Singh",
@@ -565,13 +572,14 @@ const About = () => {
                     marginBottom: 10,
                   }}
                 >
-                  <CountUp
+                  {/* <CountUp
                     start={0}
                     end={item.count}
                     duration={2.5}
                     separator=","
                   />
-                  {item.suffix}
+                  {item.suffix} */}
+                  Upcoming
                 </Title>
 
                 {/* Label */}
@@ -588,6 +596,7 @@ const About = () => {
             </Col>
           ))}
         </Row>
+        
       </Content>
 
 
@@ -595,7 +604,7 @@ const About = () => {
 
 
       {/* ================= AWARDS & ACHIEVEMENTS ================= */}
-      <Content style={{ background: "#e6d3c6", padding: "0" }}>
+      {/* <Content style={{ background: "#e6d3c6", padding: "0" }}>
         <Carousel autoplay dots={true} effect="fade">
           {awards.map((award, index) => (
             <div key={index}>
@@ -606,7 +615,7 @@ const About = () => {
                   padding: "60px 40px",
                 }}
               >
-                {/* LEFT CONTENT */}
+                 LEFT CONTENT 
                 <Col xs={24} md={12} style={{ paddingLeft: isDesktop ? 64 : 20 }}>
                   <motion.div
                     initial={{ opacity: 0, x: -40 }}
@@ -647,7 +656,7 @@ const About = () => {
                   </motion.div>
                 </Col>
 
-                {/* RIGHT IMAGE */}
+                RIGHT IMAGE
                 <Col xs={24} md={12}>
                   <motion.div
                     initial={{ opacity: 0, x: 40 }}
@@ -674,7 +683,7 @@ const About = () => {
             </div>
           ))}
         </Carousel>
-      </Content>
+      </Content> */}
 
 
       {/* ================= PARTNERS SECTION ================= */}
@@ -725,31 +734,22 @@ const About = () => {
                 { breakpoint: 480, settings: { slidesToShow: 1 } },
               ]}
             >
-              {partnerLogos.map((logo, index) => (
-                <div key={index}>
-                  <div
-                    style={{
-                      height: 120,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: 20,
-                    }}
-                  >
-                    <Image
-                      src={logo}
-                      preview={false}
-                      style={{
-                        maxHeight: 80,
-                        maxWidth: "100%",
-                        objectFit: "contain",
-                        transition: "0.3s",
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+       
             </Carousel>
+                   <Row
+    gutter={[32, 32]}
+    justify="center"
+    style={{ maxWidth: 1200, margin: '0 auto' }}
+>
+    {[1, 2, 3].map((item, index) => (
+        <Col xs={24} md={8} key={index}>
+            <CommonCard
+                image={upcomingImg}
+                description="Upcoming updates, campaigns, and community initiatives will be announced soon."
+            />
+        </Col>
+    ))}
+</Row>
           </Col>
         </Row>
       </Content>

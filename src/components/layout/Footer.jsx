@@ -134,7 +134,7 @@ const AppFooter = () => {
                                 { icon: <FacebookOutlined />, url: 'https://www.facebook.com/TheQQuest' },
                                 { icon: <InstagramOutlined />, url: 'https://www.instagram.com/the.quenchquest' },
                                 { icon: <LinkedinOutlined />, url: 'https://www.linkedin.com/company/the-quenchquest' },
-                                { icon: <YoutubeOutlined />, url: 'https://www.youtube.com/@thequenchquest' },
+                                { icon: <YoutubeOutlined />, url: 'https://youtube.com/@quenchquestsocialfoundation?si=ShsFOZUy9aLizdb0' },
                             ].map((item, index) => (
                                 <a
                                     key={index}

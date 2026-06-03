@@ -5,6 +5,8 @@ import story1 from "../../assets/story1.png";
 import story2 from "../../assets/story2.png";
 import story3 from "../../assets/story3.png";
 import story4 from "../../assets/story4.png";
+import CommonCard from "../CommonCard";
+import upcomingImg from "../../assets/upcoming.jpg";
 
 const { Title, Paragraph } = Typography;
 
@@ -146,7 +148,7 @@ const Projects = () => {
           Explore the tangible outcomes of our dedication to social welfare and
           empowerment. Discover how we're making a difference in communities.
         </Paragraph>
-        <Button type="primary">Download Impact Report</Button>
+        {/* <Button type="primary">Download Impact Report</Button> */}
       </motion.div>
 
       {/* Filter Section */}
@@ -178,7 +180,7 @@ const Projects = () => {
         <Row gutter={[24, 24]}>
           {filteredProjects.map((project, idx) => (
             <Col xs={24} sm={24} md={12} lg={8} key={idx}>
-              <Card
+              {/* <Card
                 hoverable
                 style={cardStyle}
                 bodyStyle={bodyStyle}
@@ -210,7 +212,11 @@ const Projects = () => {
                 <Button type="default" style={{ marginTop: 10 }}>
                   View Case Study
                 </Button>
-              </Card>
+              </Card> */}
+              <CommonCard
+  image={upcomingImg}
+  description="Upcoming updates, campaigns, and community initiatives will be announced soon."
+/>
             </Col>
           ))}
         </Row>

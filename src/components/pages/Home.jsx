@@ -1,7 +1,27 @@
-import React, { useEffect } from 'react';
-import { Layout, Typography, Button, Space, Row, Col, Divider } from 'antd';
+import React, { useEffect, useState } from 'react';
+import {
+    Layout,
+    Typography,
+    Button,
+    Space,
+    Row,
+    Col,
+    Divider,
+    Form,
+    Input,
+    message
+} from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { HeartFilled, HeartOutlined, TeamOutlined, BookOutlined, SafetyOutlined, RiseOutlined, ToolOutlined, BulbOutlined } from '@ant-design/icons';
+import {
+    HeartFilled,
+    HeartOutlined,
+    TeamOutlined,
+    BookOutlined,
+    SafetyOutlined,
+    RiseOutlined,
+    ToolOutlined,
+    BulbOutlined
+} from '@ant-design/icons';
 import { motion } from "framer-motion";
 import antdTheme from '../../theme/antdTheme';
 import heroImage from '../../assets/hero-img1.png';
@@ -9,51 +29,94 @@ import CountUp from 'react-countup';
 import news1 from '../../assets/news1.jpg';
 import news2 from '../../assets/news2.jpg';
 import news3 from '../../assets/news3.jpg';
+import CommonCard from '../CommonCard';
+import './home.css';
+import './about.css';
+import upcomingImg from "../../assets/upcoming.jpg";
 
+import { getUser } from "../../utils/auth";
+// Get logged-in user from localStorage
+
+
+
+// ✅ API IMPORT
+import { sendContactMessage } from "../../api/authApi";
 
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
-
-const newsData = [
-    {
-        image: news1,
-        date: 'October 26, 2023',
-        title: 'New Education Initiative Launched in Rural Areas',
-        desc: 'Our latest program aims to provide digital literacy to 10,000 children in remote villages, bridging the technological gap and fostering future-ready skills.',
-    },
-    {
-        image: news2,
-        date: 'September 15, 2023',
-        title: 'Health Camps Benefit Thousands in Urban Slums',
-        desc: 'Over 5,000 individuals received free medical check-ups and essential medicines through our recent health camps, addressing critical health needs.',
-    },
-    {
-        image: news3,
-        date: 'August 01, 2023',
-        title: 'Skill Development Program Empowers Women',
-        desc: 'Our vocational training initiative has successfully equipped 200 women with sustainable livelihood skills, fostering economic independence.',
-    },
-];
-
 
 const Home = () => {
     const navigate = useNavigate();
     const { colorPrimary, colorTextSecondary } = antdTheme.token;
     const location = useLocation();
 
+    // ================= CONTACT FORM STATE =================
+    const [contactForm] = Form.useForm();
+    const [contactLoading, setContactLoading] = useState(false);
+
+    const user = getUser();
+    const isLoggedIn = !!user;
+
+    useEffect(() => {
+        if (user) {
+            contactForm.setFieldsValue({
+                name: user.name || "",
+                email: user.email || "",
+                contact: user.phone || "",
+                address: user.location || "",
+                message: "",
+            });
+        } else {
+            contactForm.resetFields(); // ✅ clears everything on logout
+        }
+    }, [user, contactForm]);
+
+    // ================= CONTACT SUBMIT =================
+    const handleContactSubmit = async (values) => {
+        try {
+            setContactLoading(true);
+
+            const payload = {
+                name: values.name,
+                email: values.email,
+                contact: values.contact,
+                address: values.address,
+                message: values.message,
+            };
+
+            const response = await sendContactMessage(payload);
+
+            message.success(
+                response?.data?.message || "Message sent successfully"
+            );
+
+            contactForm.resetFields();
+        } catch (error) {
+            console.log("Contact API Error:", error);
+
+            message.error(
+                error?.response?.data?.message || "Failed to send message"
+            );
+        } finally {
+            setContactLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (location.hash) {
             const id = location.hash.replace('#', '');
             const el = document.getElementById(id);
             if (el) {
-
                 const headerEl = document.querySelector('header');
                 const headerHeight = headerEl ? headerEl.offsetHeight : 70;
                 const elementPosition = el.getBoundingClientRect().top + window.pageYOffset;
                 const offsetPosition = elementPosition - headerHeight - 12;
 
-                setTimeout(() => window.scrollTo({ top: offsetPosition, behavior: 'smooth' }), 50);
+                setTimeout(() =>
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' }),
+                    50
+                );
             }
         }
     }, [location]);
@@ -126,7 +189,7 @@ Action: Donate Now
 Please share the donation details.`;
 
                                                 window.open(
-                                                    `https://wa.me/919860026373?text=${encodeURIComponent(message)}`,
+                                                    `https://wa.me/9762203269?text=${encodeURIComponent(message)}`,
                                                     "_blank"
                                                 );
                                             }}
@@ -649,6 +712,8 @@ Please share the donation details.`;
             {/* LATEST NEWS & UPDATES SECTION */}
 
             <Content style={{ padding: '100px 20px', backgroundColor: '#ffffff' }}>
+
+                {/* HEADING */}
                 <Row justify="center">
                     <Col xs={24} style={{ textAlign: 'center', marginBottom: 60 }}>
                         <motion.div
@@ -657,10 +722,6 @@ Please share the donation details.`;
                             transition={{ duration: 0.8, ease: 'easeOut' }}
                             viewport={{ once: true }}
                         >
-                            {/* <Title level={2} style={{ fontWeight: 700 }}>
-                                    Latest News & Updates
-                                </Title> */}
-
                             <Title level={2} style={{ marginBottom: 20 }}>
                                 LATEST <span style={{ color: colorPrimary }}>NEWS & UPDATES</span>
                             </Title>
@@ -673,30 +734,45 @@ Please share the donation details.`;
                                         gap: 12,
                                         color: antdTheme.token.colorPrimary,
                                         fontSize: 22,
-
                                     }}
-
                                 >
-                                    <span style={{ width: 40, height: 2, background: antdTheme.token.colorPrimary }} />
+                                    <span
+                                        style={{
+                                            width: 40,
+                                            height: 2,
+                                            background: antdTheme.token.colorPrimary,
+                                        }}
+                                    />
                                     <HeartFilled />
-                                    <span style={{ width: 40, height: 2, background: antdTheme.token.colorPrimary }} />
+                                    <span
+                                        style={{
+                                            width: 40,
+                                            height: 2,
+                                            background: antdTheme.token.colorPrimary,
+                                        }}
+                                    />
                                 </span>
                             </Divider>
                         </motion.div>
                     </Col>
                 </Row>
 
-                {/* <Row
+                {/* UPCOMING CARDS */}
+                <Row
                     gutter={[32, 32]}
                     justify="center"
                     style={{ maxWidth: 1200, margin: '0 auto' }}
                 >
-                    {newsData.map((news, index) => (
+                    {[1, 2, 3].map((item, index) => (
                         <Col xs={24} md={8} key={index}>
                             <motion.div
                                 initial={{ opacity: 0, y: 50 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.2, duration: 0.7, ease: 'easeOut' }}
+                                transition={{
+                                    delay: index * 0.2,
+                                    duration: 0.7,
+                                    ease: 'easeOut',
+                                }}
                                 viewport={{ once: true }}
                             >
                                 <div
@@ -704,240 +780,145 @@ Please share the donation details.`;
                                         background: '#ffffff',
                                         borderRadius: antdTheme.token.borderRadius,
                                         overflow: 'hidden',
-                                        height: '100%',
-                                        minHeight: 550,
+                                        minHeight: 300,
                                         boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                                         display: 'flex',
                                         flexDirection: 'column',
                                     }}
                                 >
-                                     Image 
+                                    {/* IMAGE */}
                                     <img
-                                        src={news.image}
-                                        alt={news.title}
+                                        src={upcomingImg}
+                                        alt="Upcoming"
                                         style={{
                                             width: '100%',
-                                            height: 220,
+                                            height: 120,
                                             objectFit: 'cover',
                                         }}
                                     />
 
-                                     Content 
+                                    {/* CONTENT */}
                                     <div style={{ padding: 24, flexGrow: 1 }}>
+                                        {/* <Paragraph
+                                style={{
+                                    color: antdTheme.token.colorTextSecondary,
+                                    fontSize: 14,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                Upcoming
+                            </Paragraph> */}
+
+                                        {/* <Title level={4} style={{ marginBottom: 12 }}>
+                                Upcoming
+                            </Title> */}
+
                                         <Paragraph
                                             style={{
                                                 color: antdTheme.token.colorTextSecondary,
-                                                fontSize: 14,
-                                                marginBottom: 8,
+                                                lineHeight: 1.7,
                                             }}
                                         >
-                                            {news.date}
+                                            Upcoming updates, campaigns, and community
+                                            initiatives will be announced soon.
                                         </Paragraph>
-
-                                        <Title level={4} style={{ marginBottom: 12 }}>
-                                            {news.title}
-                                        </Title>
-
-                                        <Paragraph style={{ color: antdTheme.token.colorTextSecondary }}>
-                                            {news.desc}
-                                        </Paragraph>
-                                    </div>
-
-                                     Button 
-                                    <div style={{ padding: '0 24px 24px' }}>
-                                        <Button
-                                            block
-                                            size="large"
-                                            onClick={() => {
-                                                const section = document.getElementById('contact');
-                                                section?.scrollIntoView({ behavior: 'smooth' });
-                                            }}
-                                            style={{
-                                                borderRadius: antdTheme.token.borderRadius,
-                                                fontWeight: 600,
-                                            }}
-                                        >
-                                            Connect With Us
-                                        </Button>
                                     </div>
                                 </div>
                             </motion.div>
                         </Col>
                     ))}
-                </Row> */}
-
-                <Row justify="center">
-                    <Col xs={24} md={12}>
-                        <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, ease: 'easeOut' }}
-                            viewport={{ once: true }}
-                        >
-                            <div
-                                style={{
-                                    background: '#ffffff',
-                                    borderRadius: antdTheme.token.borderRadius,
-                                    padding: '60px 30px',
-                                    textAlign: 'center',
-                                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
-                                }}
-                            >
-                                <Title
-                                    level={2}
-                                    style={{
-                                        color: colorPrimary,
-                                        marginBottom: 20,
-                                    }}
-                                >
-                                    UPCOMING
-                                </Title>
-
-                                <Paragraph
-                                    style={{
-                                        fontSize: 18,
-                                        color: antdTheme.token.colorTextSecondary,
-                                        lineHeight: 1.8,
-                                        marginBottom: 0,
-                                    }}
-                                >
-                                    Exciting new campaigns, community programs,
-                                    and social initiatives are coming soon.
-                                    Stay connected with us for future updates.
-                                </Paragraph>
-                            </div>
-                        </motion.div>
-                    </Col>
                 </Row>
 
-
             </Content>
-
 
             {/* GET IN TOUCH SECTION */}
-            <Content style={{ padding: '100px 20px', backgroundColor: '#f5f8fc' }}>
-                <Row justify="center">
-                    <Col xs={24} md={16} style={{ textAlign: 'center', marginBottom: 40 }}>
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                            viewport={{ once: true }}
-                        >
+
+            <Layout>
+
+                {/* ================= OTHER SECTIONS (UNCHANGED) ================= */}
+                <Content style={{ padding: '10px 20px', backgroundColor: '#ffffff' }}>
+                    {/* YOUR FULL EXISTING UI REMAINS SAME */}
+                </Content>
+
+                {/* ================= GET IN TOUCH SECTION (FIXED) ================= */}
+                <Content
+                    style={{
+                        padding: '40px clamp(16px, 5vw, 120px)',
+                        backgroundColor: '#ffffff'
+                    }}
+                >
+
+                    <Row justify="center">
+                        <Col xs={24} sm={22} md={16} lg={12} xl={10} style={{ textAlign: "center" }}>
                             <Title level={2}>
-                                GET IN <span style={{ color: colorPrimary }}>TOUCH</span>
+                                GET IN TOUCH
                             </Title>
+                        </Col>
+                    </Row>
 
-                            <Divider plain style={{ margin: '30px 0' }}>
-                                <span
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: 12,
-                                        color: colorPrimary,
-                                        fontSize: 22,
-                                    }}
-                                >
-                                    <span style={{ width: 40, height: 2, background: colorPrimary }} />
-                                    <HeartFilled />
-                                    <span style={{ width: 40, height: 2, background: colorPrimary }} />
-                                </span>
-                            </Divider>
-
-                            <Paragraph style={{ fontSize: 17, color: colorTextSecondary, maxWidth: 700, margin: '0 auto', lineHeight: 1.7 }}>
-                                Have any questions, suggestions, or want to collaborate with us? Fill out the form below and we’ll get back to you as soon as possible.
-                            </Paragraph>
-                        </motion.div>
-                    </Col>
-                </Row>
-
-                <Row justify="center">
-                    <Col xs={24} md={12}>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.97 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.2, duration: 0.8 }}
-                            viewport={{ once: true }}
-                        >
-                            <form
-                                style={{
-                                    background: '#ffffff',
-                                    borderRadius: antdTheme.token.borderRadius,
-                                    padding: '32px 24px',
-                                    boxShadow: '0 8px 24px rgba(0,0,0,0.05)',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 16,
-                                }}
-                                onSubmit={(e) => {
-                                    e.preventDefault();
-                                    alert('Form submitted!'); // Replace with actual submit logic
-                                }}
+                    <Row justify="center">
+                        <Col xs={24} md={12}>
+                            <Form
+                                form={contactForm}
+                                layout="vertical"
+                                onFinish={handleContactSubmit}
                             >
-                                <input
-                                    type="text"
-                                    placeholder="Your Name"
-                                    required
-                                    style={{
-                                        padding: '12px 16px',
-                                        borderRadius: antdTheme.token.borderRadius,
-                                        border: `1px solid #d9d9d9`,
-                                        fontSize: 16,
-                                    }}
-                                />
-
-                                <input
-                                    type="email"
-                                    placeholder="Your Email"
-                                    required
-                                    style={{
-                                        padding: '12px 16px',
-                                        borderRadius: antdTheme.token.borderRadius,
-                                        border: `1px solid #d9d9d9`,
-                                        fontSize: 16,
-                                    }}
-                                />
-
-                                <input
-                                    type="text"
-                                    placeholder="Subject"
-                                    style={{
-                                        padding: '12px 16px',
-                                        borderRadius: antdTheme.token.borderRadius,
-                                        border: `1px solid #d9d9d9`,
-                                        fontSize: 16,
-                                    }}
-                                />
-
-                                <textarea
-                                    placeholder="Your Message"
-                                    required
-                                    rows={5}
-                                    style={{
-                                        padding: '12px 16px',
-                                        borderRadius: antdTheme.token.borderRadius,
-                                        border: `1px solid #d9d9d9`,
-                                        fontSize: 16,
-                                        resize: 'none',
-                                    }}
-                                />
-
-                                <Button
-                                    type="primary"
-                                    htmlType="submit"
-                                    style={{
-                                        padding: '12px 24px',
-                                        borderRadius: antdTheme.token.borderRadius,
-                                        fontWeight: 600,
-                                    }}
+                                <Form.Item
+                                    name="name"
+                                    rules={[{ required: true, message: "Enter your name" }]}
                                 >
-                                    Send Message
-                                </Button>
-                            </form>
-                        </motion.div>
-                    </Col>
-                </Row>
-            </Content>
+                                    <Input placeholder="Your Name" disabled={isLoggedIn} />
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="email"
+                                    rules={[
+                                        { required: true, message: "Enter email" },
+                                        { type: "email", message: "Enter valid email" }
+                                    ]}
+                                >
+                                    <Input placeholder="Your Email" disabled={isLoggedIn} />
+                                </Form.Item>
+
+                                <Form.Item name="contact">
+                                    <Input placeholder="Phone Number" disabled={isLoggedIn} />
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="address"
+                                    rules={[{ required: true, message: "Enter your address" }]}
+                                >
+                                    <Input placeholder="Your Address" disabled={isLoggedIn} />
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="message"
+                                    rules={[{ required: true, message: "Enter message" }]}
+                                >
+                                    <Input.TextArea rows={4} placeholder="Your Message" />
+                                </Form.Item>
+
+                                <Form.Item>
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        loading={contactLoading}
+                                        block
+                                    >
+                                        Send Message
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </Col>
+                    </Row>
+
+                </Content>
+
+            </Layout>
+            );
+};
+
+            export default Home;
 
 
         </Layout>

@@ -262,9 +262,27 @@ const Programs = () => {
                                     </div>
 
                                     {/* CTA */}
-                                    <Button type="primary" block>
-                                        Learn More / Support
-                                    </Button>
+                                    <Button
+  type="primary"
+  block
+  onClick={() => {
+    const message = `Hello Quench Quest Social Foundation,
+
+I visited your website and I am interested to learn more about ${program.title}.
+
+Source: Quench Quest Website
+Program: ${program.title}
+
+Please share more details about this initiative.`;
+
+    window.open(
+      `https://wa.me/919860026373?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
+  }}
+>
+  Learn More / Support
+</Button>
                                 </Card>
                             </Col>
                         ))}
@@ -301,7 +319,7 @@ const Programs = () => {
                             </div>
 
                             {/* Slider */}
-                            <Carousel autoplay dots style={{ padding: "20px" }}>
+                            {/* <Carousel autoplay dots style={{ padding: "20px" }}>
                                 {storiesData.map((story, index) => (
                                     <div key={index}>
                                         <Card
@@ -314,7 +332,7 @@ const Programs = () => {
                                         >
                                             <Row gutter={0} align="middle">
 
-                                                {/* Text Content */}
+                                                 Text Content 
                                                 <Col
                                                     xs={24}
                                                     md={12}
@@ -356,7 +374,7 @@ const Programs = () => {
                                                     </Button>
                                                 </Col>
 
-                                                {/* Image */}
+                                                 Image 
                                                 <Col xs={24} md={12}>
                                                     <img
                                                         src={story.image}
@@ -374,7 +392,57 @@ const Programs = () => {
                                         </Card>
                                     </div>
                                 ))}
-                            </Carousel>
+                            </Carousel> */}
+
+                            {/* Upcoming Cards */}
+<Row gutter={[24, 24]} justify="center">
+  {[1, 2, 3].map((_, index) => (
+    <Col xs={24} md={8} key={index}>
+      <Card
+        hoverable
+        style={{
+          borderRadius: 16,
+          minHeight: 380,
+          boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+          textAlign: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        bodyStyle={{
+          padding: "50px 30px",
+        }}
+      >
+        <div>
+          <Title level={3} style={{ color: colorPrimary }}>
+            Upcoming
+          </Title>
+
+          <Paragraph
+            style={{
+              fontSize: 16,
+              color: colorTextSecondary,
+              lineHeight: 1.8,
+            }}
+          >
+            Inspiring success stories, community transformations,
+            and beneficiary journeys will be published here soon.
+          </Paragraph>
+
+          <Button
+            type="primary"
+            style={{
+              borderRadius: 30,
+              marginTop: 20,
+            }}
+          >
+            Stay Tuned
+          </Button>
+        </div>
+      </Card>
+    </Col>
+  ))}
+</Row>
 
                         </Col>
                     </Row>
@@ -428,9 +496,15 @@ const Programs = () => {
                                     background: colorPrimary,
                                     color: "#ffffff",
                                 }}
-                                onClick={() => {
-                                    // You can replace this with your actual donation link
-                                    window.open("https://www.yourdonationlink.com", "_blank");
+                                onClick={() => { const message = `Hello Quench Quest Social Foundation,
+I visited your website and I am interested in donating.
+
+Source: Quench Quest Website
+Action: Donate Now 
+
+Please share the donation details.`;
+                                    
+                                    window.open(`https://wa.me/919860026373?text=${encodeURIComponent(message)}`, "_blank");
                                 }}
                             >
                                 Donate Now
