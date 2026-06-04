@@ -915,10 +915,6 @@ Please share the donation details.`;
                 </Content>
 
             </Layout>
-            );
-};
-
-            export default Home;
 
 
         </Layout>

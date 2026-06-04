@@ -24,7 +24,7 @@ import award3 from "../../assets/news3.jpg";
 import heroBg from "../../assets/hero-img1.png";
 import upcomingImg from "../../assets/upcoming.jpg";
 
-import kushalsirimage from "../../assets/kushal-Sharma.webp"
+import kushalsirimage from "../../assets/kushal-sharma.webp"
 import shivsirimage from "../../assets/shivsingh-patel.jpg"
 import Ritvizsirimage from "../../assets/ritviz-singh.webp"
 import CommonCard from '../CommonCard';
