@@ -26,3 +26,6 @@ export const createVolunteer = (data) =>
 
 export const sendContactMessage = (data) =>
   API.post("/contact/", data);
+
+export const resetPassword = (data) =>
+  API.post("/auth/reset-password/", data);

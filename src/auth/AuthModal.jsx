@@ -13,6 +13,8 @@ import {
   loginUser,
   registerUser,
   verifyOtp,
+  forgotPassword,
+  resetPassword,
 } from "../api/authApi";
 
 // import { setUserData } from "../utils/auth"; // ✅ ADD THIS
@@ -23,9 +25,14 @@ const AuthModal = ({ open, onClose, setUser }) => {
   const [forgotForm] = Form.useForm();
   const [otpForm] = Form.useForm();
 
-  const [showForgot, setShowForgot] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
+ const [showForgot, setShowForgot] = useState(false);
+const [showOtp, setShowOtp] = useState(false);
+const [showResetPassword, setShowResetPassword] = useState(false);
+
+const [userEmail, setUserEmail] = useState("");
+const [otpValue, setOtpValue] = useState("");
+
+const [resetForm] = Form.useForm();
 
   // ================= LOGIN =================
  // Function runs when user clicks Login button
@@ -115,36 +122,56 @@ const handleLogin = async (values) => {
 
   // ================= VERIFY OTP =================
   const handleVerifyOtp = async (values) => {
-    try {
-      const payload = {
-        email: userEmail,
-        otp: values.otp,
-      };
+  setOtpValue(values.otp);
+  setShowOtp(false);
+  setShowResetPassword(true);
+};
 
-      const response = await verifyOtp(payload);
+const handleResetPassword = async (values) => {
+  try {
+    const response = await resetPassword({
+      email: userEmail,
+      otp: otpValue,
+      new_password: values.new_password,
+    });
 
-      message.success(
-        response.data?.message || "OTP Verified Successfully"
-      );
+    message.success(
+      response.data.message || "Password Reset Successful"
+    );
 
-      otpForm.resetFields();
-      registerForm.resetFields();
+    resetForm.resetFields();
 
-      setShowOtp(false);
-      onClose();
-    } catch (error) {
-      message.error(
-        error?.response?.data?.message ||
-        "OTP Verification Failed"
-      );
-    }
-  };
+    setShowResetPassword(false);
+    setShowForgot(false);
+    setShowOtp(false);
+
+  } catch (error) {
+    message.error(
+      error?.response?.data?.message ||
+      "Password Reset Failed"
+    );
+  }
+};
 
   // ================= FORGOT PASSWORD =================
-  const handleForgotPassword = () => {
-    message.success("Password reset link sent to your email");
-    setShowForgot(false);
-  };
+const handleForgotPassword = async (values) => {
+  try {
+    const response = await forgotPassword({
+      email: values.email,
+    });
+
+    message.success(response.data.message);
+
+    // show OTP screen
+    setUserEmail(values.email);
+    setShowOtp(true);
+
+  } catch (error) {
+    message.error(
+      error?.response?.data?.message || "Failed to send OTP"
+    );
+  }
+};
 
   return (
     <Modal
@@ -152,34 +179,71 @@ const handleLogin = async (values) => {
       open={open}
       footer={null}
       centered
-      onCancel={() => {
-        setShowForgot(false);
-        setShowOtp(false);
-        onClose();
-      }}
+     onCancel={() => {
+  setShowForgot(false);
+  setShowOtp(false);
+  setShowResetPassword(false);
+  onClose();
+}}
     >
-      {showOtp ? (
-        <>
-          <h3>Verify OTP</h3>
+      
+ {showResetPassword ? (
+  <>
+    <h3>Reset Password</h3>
 
-          <p>
-            OTP sent to <b>{userEmail}</b>
-          </p>
+    <Form form={resetForm} onFinish={handleResetPassword}>
+      <Form.Item
+        name="new_password"
+        rules={[
+          {
+            required: true,
+            message: "Enter New Password",
+          },
+        ]}
+      >
+        <Input.Password placeholder="New Password" />
+      </Form.Item>
 
-          <Form form={otpForm} onFinish={handleVerifyOtp}>
-            <Form.Item
-              name="otp"
-              rules={[{ required: true, message: "Enter OTP" }]}
-            >
-              <Input placeholder="Enter OTP" />
-            </Form.Item>
+      <Button
+        type="primary"
+        htmlType="submit"
+        block
+      >
+        Reset Password
+      </Button>
+    </Form>
+  </>
+) : showOtp ? (
+  <>
+    <h3>Verify OTP</h3>
 
-            <Button type="primary" htmlType="submit" block>
-              Verify OTP
-            </Button>
-          </Form>
-        </>
-      ) : showForgot ? (
+    <p>
+      OTP sent to <b>{userEmail}</b>
+    </p>
+
+    <Form form={otpForm} onFinish={handleVerifyOtp}>
+      <Form.Item
+        name="otp"
+        rules={[
+          {
+            required: true,
+            message: "Enter OTP",
+          },
+        ]}
+      >
+        <Input placeholder="Enter OTP" />
+      </Form.Item>
+
+      <Button
+        type="primary"
+        htmlType="submit"
+        block
+      >
+        Verify OTP
+      </Button>
+    </Form>
+  </>
+) : showForgot ? (
         <>
           <h3>Forgot Password</h3>
 
@@ -210,26 +274,36 @@ const handleLogin = async (values) => {
               key: "1",
               label: "Login",
               children: (
-                <Form form={loginForm} onFinish={handleLogin}>
-                  <Form.Item
-                    name="email"
-                    rules={[{ required: true }]}
-                  >
-                    <Input placeholder="Email" />
-                  </Form.Item>
+  <Form form={loginForm} onFinish={handleLogin}>
+    <Form.Item
+      name="email"
+      rules={[{ required: true }]}
+    >
+      <Input placeholder="Email" />
+    </Form.Item>
 
-                  <Form.Item
-                    name="password"
-                    rules={[{ required: true }]}
-                  >
-                    <Input.Password placeholder="Password" />
-                  </Form.Item>
+    <Form.Item
+      name="password"
+      rules={[{ required: true }]}
+    >
+      <Input.Password placeholder="Password" />
+    </Form.Item>
 
-                  <Button type="primary" htmlType="submit" block>
-                    Login
-                  </Button>
-                </Form>
-              ),
+    <div style={{ textAlign: "right", marginBottom: 16 }}>
+      <Button
+        type="link"
+        onClick={() => setShowForgot(true)}
+        style={{ padding: 0 }}
+      >
+        Forgot Password?
+      </Button>
+    </div>
+
+    <Button type="primary" htmlType="submit" block>
+      Login
+    </Button>
+  </Form>
+),
             },
 
             {
@@ -280,5 +354,6 @@ const handleLogin = async (values) => {
     </Modal>
   );
 };
+
 
 export default AuthModal;
