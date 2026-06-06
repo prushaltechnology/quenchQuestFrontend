@@ -91,44 +91,83 @@ const handleLogin = async (values) => {
 };
 
   // ================= REGISTER =================
-  const handleRegister = async (values) => {
-    try {
-      const payload = {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        phone: values.phone,
-        location: values.location,
-        skills: values.skills,
-        availability: values.availability,
-      };
+const handleRegister = async (values) => {
+  try {
+    const payload = {
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      phone: values.phone,
+      location: values.location,
+      skills: values.skills,
+      availability: values.availability,
+    };
 
-      const response = await registerUser(payload);
+    const response = await registerUser(payload);
 
-      setUserEmail(values.email);
-      setShowOtp(true);
+    setUserEmail(values.email);
+    setOtpPurpose("register");
+    setShowOtp(true);
 
-      message.success(
-        response?.data?.message || "OTP Sent Successfully"
-      );
-    } catch (error) {
-      message.error(
-        error?.response?.data?.message ||
-        error.message ||
-        "Registration Failed"
-      );
-    }
-  };
+    message.success(
+      response?.data?.message || "OTP Sent Successfully"
+    );
+  } catch (error) {
+    message.error(
+      error?.response?.data?.message ||
+      error.message ||
+      "Registration Failed"
+    );
+  }
+};
+const [otpPurpose, setOtpPurpose] = useState("");
+
 
   // ================= VERIFY OTP =================
   const handleVerifyOtp = async (values) => {
-  setOtpValue(values.otp);
-  setShowOtp(false);
-  setShowResetPassword(true);
+  try {
+    const response = await verifyOtp({
+      email: userEmail,
+      otp: values.otp,
+    });
+
+    message.success(
+      response?.data?.message || "OTP Verified"
+    );
+
+    if (otpPurpose === "register") {
+      otpForm.resetFields();
+      registerForm.resetFields();
+
+      setShowOtp(false);
+
+      message.success(
+        "Registration completed successfully. Please login."
+      );
+    }
+
+    if (otpPurpose === "forgot") {
+      setOtpValue(values.otp);
+      setShowOtp(false);
+      setShowResetPassword(true);
+    }
+
+  } catch (error) {
+    message.error(
+      error?.response?.data?.message ||
+      "OTP Verification Failed"
+    );
+  }
 };
 
 const handleResetPassword = async (values) => {
   try {
+    console.log("RESET DATA:", {
+      email: userEmail,
+      otp: otpValue,
+      new_password: values.new_password,
+    });
+
     const response = await resetPassword({
       email: userEmail,
       otp: otpValue,
@@ -139,13 +178,8 @@ const handleResetPassword = async (values) => {
       response.data.message || "Password Reset Successful"
     );
 
-    resetForm.resetFields();
-
-    setShowResetPassword(false);
-    setShowForgot(false);
-    setShowOtp(false);
-
   } catch (error) {
+    console.log("RESET ERROR:", error?.response?.data);
     message.error(
       error?.response?.data?.message ||
       "Password Reset Failed"
@@ -160,11 +194,11 @@ const handleForgotPassword = async (values) => {
       email: values.email,
     });
 
-    message.success(response.data.message);
-
-    // show OTP screen
     setUserEmail(values.email);
+    setOtpPurpose("forgot");
     setShowOtp(true);
+
+    message.success(response.data.message);
 
   } catch (error) {
     message.error(
@@ -179,10 +213,15 @@ const handleForgotPassword = async (values) => {
       open={open}
       footer={null}
       centered
-     onCancel={() => {
+   onCancel={() => {
   setShowForgot(false);
   setShowOtp(false);
   setShowResetPassword(false);
+
+  setOtpPurpose("");
+  setUserEmail("");
+  setOtpValue("");
+
   onClose();
 }}
     >
